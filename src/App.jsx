@@ -123,3 +123,5 @@ function App() {
 function SourceItem({ source, assessment, expanded = false }) {
   return <div className={`source-item ${expanded ? "source-expanded" : ""}`}><div className="source-top"><span className="source-id">{source.id}</span><div className="source-info"><a href={source.url} target="_blank" rel="noreferrer">{source.title || source.domain}<ExternalLink size={12}/></a><span>{source.domain}{source.publishedDate ? ` · ${source.publishedDate}` : ""}</span></div><ArrowUpRight className="source-arrow" size={15}/></div>{expanded && <p className="source-snippet">{source.snippet}</p>}{assessment && <div className={`source-stance stance-${assessment.stance}`}><span>{assessment.stance}</span><p>{assessment.reason}</p></div>}{!expanded && source.snippet && <p className="source-preview">{source.snippet}</p>}</div>;
 }
+
+export default App;
