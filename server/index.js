@@ -42,35 +42,48 @@ async function searchWeb(query) {
 }
 
 async function generateWithFallback(genAI, prompt) {
+  // Retry the primary model once for transient overloads, then try the backup once.
   const models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"];
   let lastError;
+
   for (let modelIndex = 0; modelIndex < models.length; modelIndex++) {
     const modelName = models[modelIndex];
     const model = genAI.getGenerativeModel({
       model: modelName,
       generationConfig: { responseMimeType: "application/json", temperature: 0.2, maxOutputTokens: 2600 }
     });
-    for (let attempt = 0; attempt < 1; attempt++) {
+    const attempts = modelIndex === 0 ? 2 : 1;
+
+    for (let attempt = 0; attempt < attempts; attempt++) {
       try {
         const result = await model.generateContent(prompt);
         return { result, modelName, fallbackUsed: modelIndex > 0 };
       } catch (error) {
         lastError = error;
-        if (!isTemporary(error) && !/404|not found|not supported/i.test(String(error?.message || error))) break;
-        if (attempt === 0 && isTemporary(error)) {
-          await new Promise(resolve => setTimeout(resolve, 900));
+        const message = String(error?.message || error);
+        const temporary = isTemporary(error);
+        const modelUnavailable = /404|not found|not supported/i.test(message);
+
+        // A short backoff helps with brief 503 capacity spikes. Do not waste time
+        // retrying authentication, malformed-request, or quota errors.
+        if (temporary && attempt + 1 < attempts) {
+          await new Promise(resolve => setTimeout(resolve, 1400));
           continue;
         }
-        break;
+        if (!temporary && !modelUnavailable) break;
       }
     }
   }
+
   const message = String(lastError?.message || lastError || "");
   if (/503|high demand|overload|capacity|temporarily unavailable/i.test(message)) {
-    throw new Error("Google's AI services are overloaded right now. TruthLens tried its backup model too. Please wait a little and retry.");
+    throw new Error("Google's AI services are still overloaded. TruthLens retried the primary model and checked its backup. Please try again in a minute.");
   }
   if (/429|quota|rate.?limit/i.test(message)) {
-    throw new Error("The AI provider's request limit has been reached. Please try again later.");
+    throw new Error("The Gemini API quota or rate limit has been reached. Check your Google AI Studio usage limits, then try again later.");
+  }
+  if (/401|403|api.?key|permission/i.test(message)) {
+    throw new Error("Gemini rejected the API credentials. Check GEMINI_API_KEY in your Render environment settings.");
   }
   throw new Error("The AI analysis could not be completed. Please retry in a moment.");
 }
