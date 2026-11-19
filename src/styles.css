@@ -98,3 +98,36 @@ h1{max-width:980px;font-size:clamp(48px,5vw,72px);line-height:1.045;letter-spaci
  .verdict-panel{padding:19px}
  .panel{padding:19px}
 }
+
+
+/* Motion system: restrained, purposeful micro-interactions */
+@keyframes tl-rise-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tl-soft-pop{0%{opacity:0;transform:scale(.975)}100%{opacity:1;transform:scale(1)}}
+@keyframes tl-glow-breathe{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 0%,transparent)}50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--accent) 9%,transparent)}}
+@keyframes tl-shimmer{0%{background-position:180% 0}100%{background-position:-180% 0}}
+.hero{animation:tl-rise-in .65s cubic-bezier(.2,.7,.2,1) both}
+.investigator-card{animation:tl-rise-in .7s .08s cubic-bezier(.2,.7,.2,1) both}
+.bottom-info{animation:tl-rise-in .6s .18s both}
+.report-heading{animation:tl-rise-in .45s both}
+.verdict-panel{animation:tl-soft-pop .5s .06s both}
+.report-tabs{animation:tl-rise-in .45s .12s both}
+.report-grid>.report-main-col>.panel,.report-grid>.report-side-col>.panel,.report-grid>.report-side-col>.caveat-panel{animation:tl-rise-in .5s both}
+.report-grid>.report-main-col>.panel:nth-child(2){animation-delay:.1s}
+.report-grid>.report-side-col>*:nth-child(2){animation-delay:.12s}
+.source-item{transition:background .2s ease,padding .2s ease,border-color .2s ease}
+.source-item:hover{background:color-mix(in srgb,var(--accent) 4%,transparent);padding-left:9px;padding-right:9px;border-radius:9px}
+.panel,.investigator-card,.bottom-info{transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.panel:hover{border-color:color-mix(in srgb,var(--accent) 26%,var(--line))}
+button{transition:transform .18s ease,background-color .18s ease,border-color .18s ease,box-shadow .18s ease,color .18s ease}
+.nav-item:active,.examples button:active,.report-tabs button:active,.secondary-btn:active{transform:scale(.98)}
+.investigate-btn:not(:disabled){position:relative;overflow:hidden}
+.investigate-btn:not(:disabled):before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 25%,#ffffff55 48%,transparent 70%);background-size:220% 100%;opacity:0;transition:opacity .2s}
+.investigate-btn:not(:disabled):hover:before{opacity:1;animation:tl-shimmer 1.1s ease}
+.loading-orb{animation:tl-glow-breathe 2.2s ease-in-out infinite,tl-soft-pop .45s both}
+.loading-orb svg{animation:spin 5s linear infinite}
+.loading-track span{background-size:200% 100%;animation:progress 1.5s infinite,tl-shimmer 2s linear infinite}
+.report-footer{animation:tl-rise-in .5s .2s both}
+@media(prefers-reduced-motion:reduce){
+ .hero,.investigator-card,.bottom-info,.report-heading,.verdict-panel,.report-tabs,.report-grid>.report-main-col>.panel,.report-grid>.report-side-col>.panel,.report-grid>.report-side-col>.caveat-panel,.report-footer,.loading-orb{animation:none!important}
+ .loading-orb svg{animation:none!important}
+}
