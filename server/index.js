@@ -56,6 +56,9 @@ async function callCompatibleProvider({ name, apiKey, endpoint, model, prompt, e
   });
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
+    if (name === "OpenRouter" && response.status === 401) {
+      throw new Error("OpenRouter rejected authentication (401). Recheck OPENROUTER_API_KEY in Render: paste the secret key itself as the Value, with no quotes or extra spaces.");
+    }
     throw new Error(name + " returned HTTP " + response.status + (detail ? ": " + detail.slice(0, 350) : ""));
   }
   const data = await response.json();
@@ -66,7 +69,7 @@ async function callCompatibleProvider({ name, apiKey, endpoint, model, prompt, e
 
 async function generateWithFallback(prompt) {
   const providers = [];
-  if (process.env.GEMINI_API_KEY) providers.push({
+  if (process.env.GEMINI_API_KEY?.trim()) providers.push({
     name: "Gemini",
     run: async () => {
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -84,18 +87,18 @@ async function generateWithFallback(prompt) {
       throw lastError || new Error("Gemini request failed.");
     }
   });
-  if (process.env.GROQ_API_KEY) providers.push({
+  if (process.env.GROQ_API_KEY?.trim()) providers.push({
     name: "Groq",
     run: () => callCompatibleProvider({
-      name: "Groq", apiKey: process.env.GROQ_API_KEY,
+      name: "Groq", apiKey: process.env.GROQ_API_KEY.trim(),
       endpoint: "https://api.groq.com/openai/v1/chat/completions",
-      model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile", prompt
+      model: process.env.GROQ_MODEL || "openai/gpt-oss-120b", prompt
     })
   });
-  if (process.env.OPENROUTER_API_KEY) providers.push({
+  if (process.env.OPENROUTER_API_KEY?.trim()) providers.push({
     name: "OpenRouter",
     run: () => callCompatibleProvider({
-      name: "OpenRouter", apiKey: process.env.OPENROUTER_API_KEY,
+      name: "OpenRouter", apiKey: process.env.OPENROUTER_API_KEY.trim(),
       endpoint: "https://openrouter.ai/api/v1/chat/completions",
       model: process.env.OPENROUTER_MODEL || "openrouter/free", prompt,
       extraHeaders: { "HTTP-Referer": "https://truthlens-ai-2mbf.onrender.com", "X-Title": "TruthLens AI" }
@@ -133,7 +136,7 @@ function previewResult(claim) {
 app.get("/api/health", (_req, res) => res.json({
   ok: true,
   configured: Boolean((process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || process.env.OPENROUTER_API_KEY) && process.env.TAVILY_API_KEY),
-  providers: { gemini: Boolean(process.env.GEMINI_API_KEY), groq: Boolean(process.env.GROQ_API_KEY), openrouter: Boolean(process.env.OPENROUTER_API_KEY), search: Boolean(process.env.TAVILY_API_KEY) },
+  providers: { gemini: Boolean(process.env.GEMINI_API_KEY?.trim()), groq: Boolean(process.env.GROQ_API_KEY?.trim()), openrouter: Boolean(process.env.OPENROUTER_API_KEY?.trim()), search: Boolean(process.env.TAVILY_API_KEY?.trim()) },
   analysis: "multi-provider-fallback"
 }));
 
