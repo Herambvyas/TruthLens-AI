@@ -7,9 +7,9 @@ import {
 } from "lucide-react";
 
 const examples = [
-  "India generates 50% of its electricity from renewable energy.",
-  "The Great Wall of China is visible from the Moon.",
-  "Drinking eight glasses of water every day is essential for everyone."
+  "Octopuses have three hearts.",
+  "Humans use only 10% of their brains.",
+  "A hidden underground city exists beneath Jaipur and is inhabited today."
 ];
 const verdictMeta = {
   supported: { label: "Supported", color: "green", icon: BadgeCheck },
