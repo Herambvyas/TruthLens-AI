@@ -47,7 +47,7 @@ app.post("/api/investigate", async (req, res) => {
     if (claim.length < 12) return res.status(400).json({ error: "Enter a claim with at least 12 characters." });
     if (!process.env.GEMINI_API_KEY || !process.env.TAVILY_API_KEY) return res.json({ ...demoResult(claim), demo: true });
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash", generationConfig: { responseMimeType: "application/json", temperature: 0.2 } });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.8-flash", generationConfig: { responseMimeType: "application/json", temperature: 0.2 } });
     const decomposition = await model.generateContent(`Break this text into at most 4 concise, independently checkable factual claims. Return ONLY JSON: {"claims":["..."]}. Do not include opinions or predictions unless they are stated as factual claims. Text: ${claim}`);
     let parsedClaims;
     try { parsedClaims = JSON.parse(decomposition.response.text()).claims; } catch { parsedClaims = [claim]; }
