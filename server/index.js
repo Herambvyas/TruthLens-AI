@@ -28,6 +28,26 @@ async function searchWeb(query) {
     score: r.score ?? null, publishedDate: r.published_date || null
   }));
 }
+async function generateWithRetry(model, prompt, attempts = 3) {
+  let lastError;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    try {
+      return await model.generateContent(prompt);
+    } catch (error) {
+      lastError = error;
+      const message = String(error?.message || error);
+      const temporary = /503|429|500|high demand|temporarily unavailable/i.test(message);
+      if (!temporary || attempt === attempts - 1) break;
+      await new Promise(resolve => setTimeout(resolve, 1500 * (attempt + 1)));
+    }
+  }
+  const message = String(lastError?.message || lastError);
+  if (/503|high demand|temporarily unavailable/i.test(message)) {
+    throw new Error("Gemini is temporarily busy. Please wait a minute and try again.");
+  }
+  throw lastError;
+}
+
 function demoResult(claim) {
   return {
     headline: "Evidence review needs live API keys", verdict: "insufficient", confidence: 0,
@@ -48,7 +68,7 @@ app.post("/api/investigate", async (req, res) => {
     if (!process.env.GEMINI_API_KEY || !process.env.TAVILY_API_KEY) return res.json({ ...demoResult(claim), demo: true });
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-3.8-flash", generationConfig: { responseMimeType: "application/json", temperature: 0.2 } });
-    const decomposition = await model.generateContent(`Break this text into at most 4 concise, independently checkable factual claims. Return ONLY JSON: {"claims":["..."]}. Do not include opinions or predictions unless they are stated as factual claims. Text: ${claim}`);
+    const decomposition = await generateWithRetry(model, `Break this text into at most 4 concise, independently checkable factual claims. Return ONLY JSON: {"claims":["..."]}. Do not include opinions or predictions unless they are stated as factual claims. Text: ${claim}`);
     let parsedClaims;
     try { parsedClaims = JSON.parse(decomposition.response.text()).claims; } catch { parsedClaims = [claim]; }
     parsedClaims = (Array.isArray(parsedClaims) ? parsedClaims : [claim]).slice(0, 4);
