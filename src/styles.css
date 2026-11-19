@@ -38,3 +38,63 @@ h1 span{background:linear-gradient(95deg,#c4b5fd 0%,#8bcbff 60%,#67e8f9 100%);-w
 @media(min-width:1200px){.content{padding-left:68px;padding-right:68px}.hero{padding-top:62px}h1{font-size:68px}}
 @media(max-width:850px){.sidebar{width:205px}.content{padding-left:24px;padding-right:24px}}
 @media(max-width:700px){.sidebar{width:260px}.content{padding-left:16px;padding-right:16px}.hero{padding-top:42px}h1{font-size:clamp(39px,11vw,54px);letter-spacing:-2.2px}.hero-stats{gap:10px}.investigator-card{padding:16px}.investigator-card.compact{padding:16px}.card-topline{gap:10px}.step-label{font-size:9px}.input-wrap textarea{height:76px}}
+
+
+/* Layout pass 2: use the screen, simplify report density */
+.content{max-width:1500px;padding-left:clamp(28px,4.2vw,72px);padding-right:clamp(28px,4.2vw,72px)}
+.hero{padding-top:58px;padding-bottom:34px}
+h1{max-width:980px;font-size:clamp(48px,5vw,72px);line-height:1.045;letter-spacing:-3.5px}
+.hero-copy{max-width:700px;font-size:15px}
+.investigator-card{max-width:none;padding:27px 29px}
+.input-wrap textarea{height:92px}
+.investigator-actions{grid-template-columns:minmax(0,1fr) auto;gap:12px 22px}
+.examples{max-width:900px}
+.examples button{font-size:11px;padding:9px 12px}
+.investigate-btn{min-width:180px;justify-content:center}
+.report-section{max-width:none}
+.report-heading{margin-bottom:26px}
+.report-heading h2{font-size:clamp(26px,2.3vw,34px)}
+.verdict-panel{padding:28px 30px;gap:24px}
+.verdict-main p{max-width:980px;font-size:13px;line-height:1.8}
+.report-grid{grid-template-columns:minmax(0,1.55fr) minmax(340px,.95fr);gap:22px}
+.report-main-col,.report-side-col{gap:22px}
+.panel{padding:26px 28px}
+.panel-heading{margin-bottom:19px}
+.panel-heading h3{font-size:18px}
+.claim-row{gap:18px;padding:20px 0}
+.claim-content p{font-size:14px}
+.claim-explanation{font-size:13px;line-height:1.75}
+.findings-list{font-size:13px}
+.source-item{padding:17px 0}
+.source-info a{font-size:13px;line-height:1.45}
+.source-info span,.source-preview,.source-snippet{font-size:11.5px;line-height:1.65}
+.source-preview{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.source-expanded .source-snippet{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.source-stance p{font-size:11.5px;line-height:1.65}
+.report-tabs{margin:25px 0 20px}
+.report-tabs button{padding:10px 14px;font-size:11px}
+.bottom-info{margin-top:30px;padding:22px 24px}
+.footer{padding-top:34px}
+@media(min-width:1600px){
+ .content{max-width:1640px;padding-left:80px;padding-right:80px}
+ .report-grid{grid-template-columns:minmax(0,1.65fr) minmax(390px,.9fr)}
+}
+@media(max-width:1100px){
+ .content{padding-left:30px;padding-right:30px}
+ .report-grid{grid-template-columns:minmax(0,1.2fr) minmax(290px,.9fr)}
+}
+@media(max-width:850px){
+ .content{padding-left:24px;padding-right:24px}
+ .report-grid{grid-template-columns:1fr}
+ .report-side-col{display:flex}
+}
+@media(max-width:700px){
+ .content{padding-left:16px;padding-right:16px}
+ .hero{padding-top:42px}
+ h1{font-size:clamp(40px,11vw,56px);letter-spacing:-2.4px}
+ .investigator-card{padding:17px}
+ .investigator-actions{grid-template-columns:1fr}
+ .investigate-btn{width:100%}
+ .verdict-panel{padding:19px}
+ .panel{padding:19px}
+}
