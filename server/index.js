@@ -21,12 +21,12 @@ async function searchWeb(query) {
     body: JSON.stringify({
       api_key: process.env.TAVILY_API_KEY,
       query: query.slice(0, 350),
-      search_depth: "advanced",
-      max_results: 6,
+      search_depth: "basic",
+      max_results: 5,
       include_answer: false,
       include_raw_content: false
     }),
-    signal: AbortSignal.timeout(18000)
+    signal: AbortSignal.timeout(9000)
   });
   if (!response.ok) throw new Error("Web research provider returned " + response.status + ". Please try again shortly.");
   const data = await response.json();
@@ -42,15 +42,15 @@ async function searchWeb(query) {
 }
 
 async function generateWithFallback(genAI, prompt) {
-  const models = ["gemini-3.8-flash", "gemini-3.5-flash-lite"];
+  const models = ["gemini-3.5-flash-lite", "gemini-3.8-flash"];
   let lastError;
   for (let modelIndex = 0; modelIndex < models.length; modelIndex++) {
     const modelName = models[modelIndex];
     const model = genAI.getGenerativeModel({
       model: modelName,
-      generationConfig: { responseMimeType: "application/json", temperature: 0.2, maxOutputTokens: 4096 }
+      generationConfig: { responseMimeType: "application/json", temperature: 0.2, maxOutputTokens: 2600 }
     });
-    for (let attempt = 0; attempt < 2; attempt++) {
+    for (let attempt = 0; attempt < 1; attempt++) {
       try {
         const result = await model.generateContent(prompt);
         return { result, modelName, fallbackUsed: modelIndex > 0 };
@@ -93,7 +93,7 @@ app.get("/api/health", (_req, res) => res.json({
   ok: true,
   configured: Boolean(process.env.GEMINI_API_KEY && process.env.TAVILY_API_KEY),
   providers: { ai: Boolean(process.env.GEMINI_API_KEY), search: Boolean(process.env.TAVILY_API_KEY) },
-  analysis: "single-pass-with-model-fallback"
+  analysis: "fast-search-single-pass-lite-first"
 }));
 
 app.post("/api/investigate", async (req, res) => {
